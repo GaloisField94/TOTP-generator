@@ -3,14 +3,24 @@ use crate::SHAs;
 use sha1::Sha1;
 use sha2::{Sha256, Sha512};
 use hmac::{Hmac, Mac};
+use std::time::{SystemTime, UNIX_EPOCH};
 
-pub fn totp(key: &[u8], time_since_t0: u64, time_step: u64, digits: u8, sha: SHAs) -> i32 {
+const STEP: u64 = 30;
+
+pub fn totp(key: &[u8], digits: u8, sha: SHAs) -> i32 {
+    match SystemTime::now().duration_since(UNIX_EPOCH) {
+        Ok(duration) => totp_int(key, duration.as_secs(), STEP, digits, sha),
+        Err(_) => panic!("SystemTime before UNIX EPOCH!"),
+    }
+}
+
+fn totp_int(key: &[u8], time_since_t0: u64, time_step: u64, digits: u8, sha: SHAs) -> i32 {
     let count = time_since_t0 / time_step;
     let counter: [u8; 8] = count.to_be_bytes();
     hotp(key, &counter, digits, sha)
 }
 
-pub fn hotp(key: &[u8], counter: &[u8; 8], digits: u8, sha: SHAs) -> i32 {
+fn hotp(key: &[u8], counter: &[u8; 8], digits: u8, sha: SHAs) -> i32 {
     match sha {
         SHAs::SHA1 => hotp_sha1(key, counter, digits),
         SHAs::SHA256 => hotp_sha256(key, counter, digits),
