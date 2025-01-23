@@ -1,5 +1,7 @@
 mod totp;
 
+use clap;
+use base32;
 #[allow(dead_code)]
 enum SHAs {
     SHA1,
@@ -8,13 +10,20 @@ enum SHAs {
 }
 
 fn main() {
-    let key_sha1 = "12345678901234567890".as_bytes();
-    let key_sha256 = "12345678901234567890123456789012".as_bytes();
-    let key_sha512 = "1234567890123456789012345678901234567890123456789012345678901234".as_bytes();
-    loop {
-        println!("{:08}", totp::totp(key_sha1, 8, SHAs::SHA1));
-        println!("{:08}", totp::totp(key_sha256, 8, SHAs::SHA256));
-        println!("{:08}", totp::totp(key_sha512, 8, SHAs::SHA512));
-        std::thread::sleep(std::time::Duration::from_secs(10));
+    let args = clap::App::new("TOTP generator")
+        .settings(&[clap::AppSettings::ArgRequiredElseHelp, clap::AppSettings::ColoredHelp])
+        .version("0.1.0")
+        .author("Daniel Trędewicz <danieltredewicz@proton.me>")
+        .arg(clap::Arg::with_name("secret")
+            .index(1)
+            .help("Shared secret in base32.")
+            .required(true))
+        .get_matches();
+
+    if let Some(secret) = base32::decode(base32::Alphabet::Rfc4648 { padding: false }, args.value_of("secret").expect("No secret provided!")) {
+        println!("{}", totp::totp(secret.as_slice(), 6, SHAs::SHA1));
+    }
+    else {
+        println!("base32 couldn't decode :(");
     }
 }
