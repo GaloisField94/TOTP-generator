@@ -9,9 +9,29 @@ enum SHAs {
 
 fn main() {
     let key = "12345678901234567890".as_bytes();
-    let mut counter: [u8; 8] = [0; 8];
-    for _ in 0..=9 {
-        println!("{}", totp::hotp(&key, &counter, SHAs::SHA1));
-        counter[7] += 1;
-    }
+    let step = 30;
+    let time = 59;
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA1));
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA256));
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA512));
+    let time = 1111111109;
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA1));
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA256));
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA512));
+    let time = 1111111111;
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA1));
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA256));
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA512));
+    let time = 1234567890;
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA1));
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA256));
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA512));
+    let time = 2000000000;
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA1));
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA256));
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA512));
+    let time = 20000000000;
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA1));
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA256));
+    println!("{:08}", totp::totp(key, time, step, 8, SHAs::SHA512));
 }
