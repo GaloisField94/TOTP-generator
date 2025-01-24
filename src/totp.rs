@@ -7,6 +7,17 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 const STEP: u64 = 30;
 
+pub fn seconds_left_to_use() -> String{
+    match SystemTime::now().duration_since(UNIX_EPOCH) {
+        Ok(duration) => {
+            let count = duration.as_secs() / STEP;
+            let seconds_left = STEP - (duration.as_secs() - (STEP * count));
+            return seconds_left.to_string();
+        },
+        Err(_) => panic!("SystemTime before UNIX EPOCH!"),
+    }
+}
+
 pub fn totp(key: &[u8], digits: u8, sha: SHAs) -> i32 {
     match SystemTime::now().duration_since(UNIX_EPOCH) {
         Ok(duration) => totp_int(key, duration.as_secs(), STEP, digits, sha),
